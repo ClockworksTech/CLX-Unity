@@ -1,0 +1,102 @@
+name: Release CLX Unity Package
+
+# On a v* tag: run the checks, pack the package as a tarball for "Add package
+# from tarball", and upload it to the clockworks-downloads bucket under plugins/
+# as both clx-unity-<tag>.tgz and clx-unity-latest.tgz, with a JSON index of
+# each. The tag must match the version in package.json.
+#
+# A manual run packs without uploading unless "publish" is ticked; the files are
+# then in the run's Release artifact.
+
+'on':
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Upload to B2 and overwrite the -latest downloads
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+
+  package:
+    name: Pack and publish
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pack
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          IS_TAG: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          set -eu
+          version=$(jq -r .version package.json)
+          if [ "$IS_TAG" = true ] && [ "$REF_NAME" != "v$version" ]; then
+            echo "::error::Tag $REF_NAME doesn't match package.json version $version. Bump package.json (and CHANGELOG.md) first."
+            exit 1
+          fi
+          TAG=${REF_NAME//\//-}
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+
+          mkdir dist
+          file="clx-unity-$TAG.tgz"
+          Tools~/pack.sh "dist/$file"
+
+          # The tarball must install from an immutable location, so every asset
+          # needs its .meta. Check what actually got packed.
+          mkdir unpacked
+          tar -xzf "dist/$file" -C unpacked
+          python3 Tools~/check-package.py unpacked/package
+
+          jq -n \
+            --arg version "$version" --arg tag "$TAG" --arg file "$file" \
+            --arg sha256 "$(sha256sum "dist/$file" | cut -d' ' -f1)" \
+            --arg unity "$(jq -r .unity package.json)" \
+            --arg name "$(jq -r .name package.json)" \
+            --arg git "https://github.com/${{ github.repository }}.git#$REF_NAME" \
+            '{version: $version, tag: $tag, file: $file, sha256: $sha256, unity: $unity, package: $name, git: $git}' \
+            > "dist/clx-unity-$TAG.json"
+          cat "dist/clx-unity-$TAG.json"
+          ls -l dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Release
+          path: dist
+          retention-days: 7
+
+      - name: Upload to B2
+        if: github.event_name == 'push' || inputs.publish
+        env:
+          B2_APPLICATION_KEY_ID: ${{ secrets.B2_KEY_ID }}
+          B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
+          B2_BUCKET_NAME: ${{ secrets.B2_BUCKET_NAME }}
+        run: |
+          set -eu
+          if [ -z "$B2_APPLICATION_KEY_ID" ] || [ -z "$B2_APPLICATION_KEY" ] || [ -z "$B2_BUCKET_NAME" ]; then
+            echo "::error::Set the B2_KEY_ID, B2_APPLICATION_KEY and B2_BUCKET_NAME secrets on this repo (the same ones CLX-UE uses)."
+            exit 1
+          fi
+          pipx install b2==4.8.0
+          # Versioned files first, so -latest never points at something missing.
+          for f in dist/*; do
+            b2 file upload --no-progress "$B2_BUCKET_NAME" "$f" "plugins/$(basename "$f")"
+          done
+          for f in dist/*; do
+            latest=$(basename "$f" | sed "s/^clx-unity-$TAG/clx-unity-latest/")
+            b2 file upload --no-progress "$B2_BUCKET_NAME" "$f" "plugins/$latest"
+          done
+
+      - name: Attach to GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*

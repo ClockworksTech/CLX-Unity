@@ -23,6 +23,13 @@ https://github.com/ClockworksTech/CLX-Unity.git
 
 Add `#v0.1.0` to the URL to pin a version.
 
+**From a download:** get
+[clx-unity-latest.tgz](https://downloads.clockworks.live/plugins/clx-unity-latest.tgz),
+from the Clockworks Hub or from a
+[GitHub release](https://github.com/ClockworksTech/CLX-Unity/releases). Move it into
+your project's `Packages` folder first, because Unity remembers where the file is.
+Then choose **+ → Add package from tarball** and pick it.
+
 **From a local copy:** choose **+ → Add package from disk** and pick `package.json`
 in this folder.
 
@@ -212,6 +219,29 @@ file without a `.meta` when a package comes from a git URL.
 
 `Tests/Editor/WireFixtures.cs` holds the test datagrams, which
 `Tools~/Fixtures/generate.py` regenerates from the real Go and Rust msgpack encoders.
+
+## Releasing
+
+1. Set `version` in `package.json` and add the version to `CHANGELOG.md`.
+2. Commit, then push a matching tag, for example `v0.1.0`.
+
+[`release.yml`](.github/workflows/release.yml) then runs the checks on Linux, macOS
+and Windows, packs the package, and uploads these to `plugins/` in the
+`clockworks-downloads` bucket, and attaches them to the GitHub release:
+
+- `clx-unity-<tag>.tgz`, the package for **Add package from tarball**.
+- `clx-unity-<tag>.json`, the version, file name, SHA-256 and git URL.
+- A `clx-unity-latest…` copy of each.
+
+It refuses a tag that doesn't match `package.json`. A manual **Run workflow**
+packs without uploading unless "publish" is ticked, and leaves the files in the
+run's **Release** artifact. To pack locally, run `Tools~/pack.sh out.tgz`.
+
+The upload needs the `B2_KEY_ID`, `B2_APPLICATION_KEY` and `B2_BUCKET_NAME`
+secrets on this repo, the same as CLX-UE's.
+
+[`checks.yml`](.github/workflows/checks.yml) runs the same checks on every push to
+`main` and every pull request.
 
 ## What hasn't been tested
 

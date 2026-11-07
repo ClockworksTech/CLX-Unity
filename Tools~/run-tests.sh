@@ -4,12 +4,13 @@
 #   run-tests.sh [folder of .rwf, .bg and .cues files from a real Viewer]
 set -euo pipefail
 cd "$(dirname "$0")"
+python=$(command -v python3 || command -v python)
 
 args=()
 [ $# -gt 0 ] && args=(--cache "$1")
 
 echo "== Package layout"
-python3 check-package.py
+"$python" check-package.py
 
 echo "== Protocol layer: .NET Standard 2.1, C# 9"
 dotnet build Compile/Protocol.netstandard.csproj -nologo -v q | grep -E "rror\(s\)|arning\(s\)"

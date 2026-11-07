@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Checks what Unity would otherwise only complain about on import."""
+"""Checks what Unity would otherwise only complain about on import.
+
+    check-package.py [package folder]    Defaults to this repo.
+"""
 import json
 import re
 import sys
 from pathlib import Path
 
-root = Path(__file__).resolve().parent.parent
+root = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parent.parent
 errors = []
 
 manifest = json.loads((root / "package.json").read_text())
@@ -47,7 +50,7 @@ for asset in assets:
 # Assembly definitions must parse, have unique names and refer to real assemblies.
 asmdefs = {}
 for path in root.rglob("*.asmdef"):
-    if ".build" in path.parts:
+    if ".build" in path.parts or "Tools~" in path.parts:
         continue
     data = json.loads(path.read_text())
     if data["name"] in asmdefs:
