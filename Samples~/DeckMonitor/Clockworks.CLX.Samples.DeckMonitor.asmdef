@@ -1,0 +1,17 @@
+{
+    "name": "Clockworks.CLX.Samples.DeckMonitor",
+    "rootNamespace": "Clockworks.CLX.Samples",
+    "references": [
+        "Clockworks.CLX",
+        "Clockworks.CLX.Protocol"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

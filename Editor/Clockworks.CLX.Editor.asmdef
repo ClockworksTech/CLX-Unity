@@ -1,0 +1,19 @@
+{
+    "name": "Clockworks.CLX.Editor",
+    "rootNamespace": "Clockworks.CLX.Editor",
+    "references": [
+        "Clockworks.CLX",
+        "Clockworks.CLX.Protocol"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

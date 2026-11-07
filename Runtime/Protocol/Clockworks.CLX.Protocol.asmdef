@@ -1,0 +1,14 @@
+{
+    "name": "Clockworks.CLX.Protocol",
+    "rootNamespace": "Clockworks.CLX",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

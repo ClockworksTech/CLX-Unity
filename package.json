@@ -1,0 +1,35 @@
+{
+  "name": "live.clockworks.clx",
+  "version": "0.1.0",
+  "displayName": "CLX",
+  "description": "Receive a live CLX stream from Clockworks senders in Unity: deck time, track metadata, mixer state, events, beat grids, cues and waveforms, through a component and C# events.",
+  "unity": "2021.3",
+  "documentationUrl": "https://github.com/ClockworksTech/CLX-Unity#readme",
+  "changelogUrl": "https://github.com/ClockworksTech/CLX-Unity/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/ClockworksTech/CLX-Unity/blob/main/LICENSE.md",
+  "license": "Apache-2.0",
+  "keywords": [
+    "clx",
+    "clockworks",
+    "dj",
+    "timecode",
+    "show control",
+    "beatgrid",
+    "waveform"
+  ],
+  "author": {
+    "name": "Clockworks",
+    "url": "https://clockworks.live"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ClockworksTech/CLX-Unity.git"
+  },
+  "samples": [
+    {
+      "displayName": "Deck Monitor",
+      "description": "A scene that shows every deck's time, track, beat and waveform, plus incoming events.",
+      "path": "Samples~/DeckMonitor"
+    }
+  ]
+}
