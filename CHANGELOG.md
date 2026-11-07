@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.0] - Unreleased
+## [0.1.0] - 2026-11-07
 
 First version, written without access to Unity. See "What hasn't been tested" in
 the README.
