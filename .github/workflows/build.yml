@@ -1,0 +1,77 @@
+name: Publish NuGet Package
+
+# On a v* tag: run the checks, pack Clockworks.CLX.Protocol from Runtime/Protocol
+# (Tools~/NuGet), attach the .nupkg to the run, and push it to nuget.org with
+# Trusted Publishing. The version comes from package.json, so the tag must match it.
+#
+# nuget.org setup, once: Account → Trusted Publishing → add a policy for
+# owner ClockworksTech, repository CLX-Unity, workflow file build.yml. Then add
+# the repository secret NUGET_USER with your nuget.org user name (not your email).
+#
+# A manual run packs without pushing unless "publish" is ticked.
+
+'on':
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Push to nuget.org
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+
+  nuget:
+    name: Pack and push
+    needs: checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # Trusted Publishing exchanges this for a short-lived nuget.org key
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Check the tag matches package.json
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -eu
+          version=$(python3 -c "import json; print(json.load(open('package.json'))['version'])")
+          if [ "v$version" != "$REF_NAME" ]; then
+            echo "::error::Tag $REF_NAME doesn't match package.json version $version"
+            exit 1
+          fi
+
+      - name: Pack
+        run: dotnet pack "Tools~/NuGet/Clockworks.CLX.Protocol.csproj" -c Release -o out -nologo
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NuGet
+          path: out/*
+
+      - name: Log in to nuget.org
+        if: startsWith(github.ref, 'refs/tags/') || inputs.publish
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push
+        if: startsWith(github.ref, 'refs/tags/') || inputs.publish
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push "out/*.nupkg" --api-key "$NUGET_API_KEY" \
+            --source https://api.nuget.org/v3/index.json --skip-duplicate

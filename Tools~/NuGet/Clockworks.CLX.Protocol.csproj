@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Packs the Unity-free protocol layer (Runtime/Protocol) as the NuGet package
+       Clockworks.CLX.Protocol, for .NET hosts such as TiXL. It compiles the same
+       sources as the Unity package, against the same profile (.NET Standard 2.1,
+       C# 9), and takes its version from package.json so the two can't drift.
+         dotnet pack Tools~/NuGet/Clockworks.CLX.Protocol.csproj -c Release -o out -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AssemblyName>Clockworks.CLX.Protocol</AssemblyName>
+    <RootNamespace>Clockworks.CLX</RootNamespace>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <Deterministic>true</Deterministic>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Ship the doc comments that exist; a public member without one isn't an error. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <UnityPackageJson>$(MSBuildThisFileDirectory)../../package.json</UnityPackageJson>
+    <Version>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(UnityPackageJson)')), '"version"\s*:\s*"([^"]+)"').Groups[1].Value)</Version>
+
+    <PackageId>Clockworks.CLX.Protocol</PackageId>
+    <Title>CLX Protocol</Title>
+    <Authors>Clockworks</Authors>
+    <Company>Clockworks</Company>
+    <Product>CLX</Product>
+    <Description>Receive a live CLX stream from Clockworks senders in any .NET app: deck time, track metadata, mixer state, events, beat grids, cues, waveforms and the leader clock. No dependencies.</Description>
+    <PackageTags>clx;clockworks;dj;timecode;show-control;beatgrid;waveform;serato;traktor;rekordbox</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/ClockworksTech/CLX-Unity</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ClockworksTech/CLX-Unity.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Runtime/Protocol/**/*.cs" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="../../LICENSE.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  <Target Name="CheckVersion" BeforeTargets="Build">
+    <Error Condition="'$(Version)' == ''" Text="Couldn't read a version from $(UnityPackageJson)." />
+  </Target>
+</Project>
