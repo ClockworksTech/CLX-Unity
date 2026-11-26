@@ -33,12 +33,14 @@
     <RepositoryUrl>https://github.com/ClockworksTech/CLX-Unity.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../Runtime/Protocol/**/*.cs" />
     <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="icon.png" Pack="true" PackagePath="/" />
     <None Include="../../LICENSE.md" Pack="true" PackagePath="/" />
   </ItemGroup>
   <Target Name="CheckVersion" BeforeTargets="Build">

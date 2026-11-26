@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.1] - 2026-11-26
+
+### Added
+
+- The protocol layer is also published as the NuGet package
+  [Clockworks.CLX.Protocol](https://www.nuget.org/packages/Clockworks.CLX.Protocol),
+  for .NET apps outside Unity. This version gives it the Clockworks icon. The Unity
+  package itself is unchanged.
+
 ## [0.1.0] - 2026-11-07
 
 First version, written without access to Unity. See "What hasn't been tested" in
