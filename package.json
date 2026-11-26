@@ -1,6 +1,6 @@
 {
   "name": "live.clockworks.clx",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "CLX",
   "description": "Receive a live CLX stream from Clockworks senders in Unity: deck time, track metadata, mixer state, events, beat grids, cues and waveforms, through a component and C# events.",
   "unity": "2021.3",
